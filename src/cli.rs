@@ -8,7 +8,7 @@ pub struct Cli {
     #[arg(value_name = "IPAddress", help = "IP address to scan")]
     ip: String,
 
-    #[arg(value_name = "Ports", help = "Ports to scan (e.g. 80,443,8080)")]
+    #[arg(value_name = "Ports", help = "Ports to scan (e.g. 80,443,8080 or 8080-8090 or 80,8080-8090)")]
     ports: String,
 
     #[arg(

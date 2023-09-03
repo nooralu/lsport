@@ -15,10 +15,14 @@ cargo install --git https://github.com/nooralu/lsport
 
 # Usage
 
-Once installed, you can run lsport with `lsport <IPAddress> <Ports>`, where `<IPAddress>` is the IP address of the host you want to scan, and `<Ports>` is a comma-separated list of ports you want to scan. For example:
+Once installed, you can run lsport with `lsport <IPAddress> <Ports>`, where `<IPAddress>` is the IP address of the host you want to scan, and `<Ports>` is a comma-separated list of ports you want to scan, or a range of ports in the form `<start>-<end>`. For example:
 
 ```
 lsport 127.0.0.1 80,443,8080
+
+# or
+# scan ports 80, 8080, 8081, 8082, ..., 8090
+lsport 127.0.0.1 80,8080-8090
 ```
 
 ## Options
