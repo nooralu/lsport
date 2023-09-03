@@ -1,15 +1,19 @@
-use std::{net::IpAddr, str::FromStr, time::Duration};
-
 use clap::Parser;
+use std::net;
+use std::net::ToSocketAddrs;
+use std::{net::IpAddr, time::Duration};
 
 #[derive(Parser)]
 #[command(about = "A simple port scanner", version = "0.1.0")]
 pub struct Cli {
-    #[arg(value_name = "IPAddress", help = "IP address to scan")]
-    ip: String,
+    #[arg(value_name = "Destination", help = "IP address or hostname to scan")]
+    pub destination: String,
 
-    #[arg(value_name = "Ports", help = "Ports to scan (e.g. 80,443,8080 or 8080-8090 or 80,8080-8090)")]
-    ports: String,
+    #[arg(
+        value_name = "Ports",
+        help = "Ports to scan (e.g. 80,443,8080 or 8080-8090 or 80,8080-8090)"
+    )]
+    pub ports: String,
 
     #[arg(
         short = 'n',
@@ -17,7 +21,7 @@ pub struct Cli {
         value_name = "Threads",
         help = "Number of threads to use (default: 5)"
     )]
-    threads: Option<u16>,
+    pub threads: Option<u16>,
 
     #[arg(
         short,
@@ -25,7 +29,7 @@ pub struct Cli {
         value_name = "Timeout",
         help = "Timeout for each port scan (default: 500ms)"
     )]
-    timeout: Option<u64>,
+    pub timeout: Option<u64>,
 }
 
 pub struct Arguments {
@@ -36,9 +40,8 @@ pub struct Arguments {
 }
 
 impl Arguments {
-    pub fn new() -> Result<Self, String> {
-        let app = Cli::parse();
-        let ip = IpAddr::from_str(&app.ip).map_err(|_| "Invalid IP address")?;
+    pub fn new(app: &Cli) -> Result<Arguments, String> {
+        let ip = parse_destination(&app.destination)?;
         let ports = parse_ports(&app.ports)?;
         let num_threads = app.threads.unwrap_or(5);
         let timeout = Duration::from_millis(app.timeout.unwrap_or(500));
@@ -80,4 +83,21 @@ fn parse_ports(args: &str) -> Result<Vec<u16>, String> {
     ports.sort_unstable();
     ports.dedup();
     Ok(ports)
+}
+
+fn parse_destination(host: &str) -> Result<IpAddr, String> {
+    match host.parse::<net::IpAddr>().ok() {
+        Some(ip) => Ok(ip),
+        None => {
+            // Try to resolve hostname
+            let mut addrs = format!("{}:{}", host, 0)
+                .to_socket_addrs()
+                .map_err(|_| format!("Invalid address: {}", host))?;
+            if let Some(addr) = addrs.next() {
+                Ok(addr.ip())
+            } else {
+                Err(format!("Invalid address: {}", host))
+            }
+        }
+    }
 }

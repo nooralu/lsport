@@ -1,4 +1,5 @@
-use cli::Arguments;
+use cli::{Arguments, Cli};
+use clap::Parser;
 use sniffer::scan_ports_multi_threads;
 use colored::Colorize;
 
@@ -7,13 +8,14 @@ mod sniffer;
 
 #[tokio::main]
 async fn main() -> Result<(), String> {
-    println!("{}", format!("Scanning...").yellow());
+    let app = Cli::parse();
+    let args = Arguments::new(&app)?;
+    println!("{}", format!("Scanning port(s) on {} ({})", app.destination, args.ip).yellow());
 
-    let args = Arguments::new()?;
     let open_ports =
         scan_ports_multi_threads(args.ip, &args.ports, args.timeout, args.num_threads).await;
 
-    println!("\n{}", format!("{} ports scanned, {} open ports\n", args.ports.len(), open_ports.len()).yellow());
+    println!("\n{}", format!("{} port(s) scanned, {} open port(s)\n", args.ports.len(), open_ports.len()).yellow());
 
     for port in &open_ports {
         println!("{}", format!("{}\tOPEN", port).green());
