@@ -43,6 +43,7 @@ impl Arguments {
         let ports = app
             .ports
             .split(',')
+            .filter(|port| !port.is_empty())
             .map(|port| {
                 port.parse::<u16>()
                     .map_err(|_| format!("Invalid port: {}", port))
