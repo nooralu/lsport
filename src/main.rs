@@ -7,9 +7,13 @@ mod sniffer;
 
 #[tokio::main]
 async fn main() -> Result<(), String> {
+    println!("{}", format!("Scanning...").yellow());
+
     let args = Arguments::new()?;
     let open_ports =
         scan_ports_multi_threads(args.ip, &args.ports, args.timeout, args.num_threads).await;
+
+    println!("{}", format!("{} ports scanned, {} open ports\n", args.ports.len(), open_ports.len()).yellow());
 
     for port in &open_ports {
         println!("{}", format!("{}\tOPEN", port).green());
