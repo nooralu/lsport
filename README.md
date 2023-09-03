@@ -2,6 +2,8 @@ lsport is a simple port scanner.
 
 # Example
 
+<img width="285" alt="Example" src="https://github.com/nooralu/lsport/assets/76510310/eb2a4214-510f-4793-90de-c78fd663bc17">
+
 
 # Installation
 
