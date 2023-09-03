@@ -6,7 +6,9 @@ use tokio::time;
 
 pub async fn is_port_open(ip: IpAddr, port: u16, timeout: Duration) -> bool {
     let future = async { TcpStream::connect((ip, port)).await.is_ok() };
-    time::timeout(timeout, future).await.unwrap_or(false)
+    let open = time::timeout(timeout, future).await.unwrap_or(false);
+    print_dot(open);
+    open
 }
 
 pub async fn scan_ports(ip: IpAddr, ports: &[u16], timeout: Duration) -> Vec<u16> {
@@ -44,4 +46,16 @@ pub async fn scan_ports_multi_threads(
         open_ports.append(&mut ports);
     }
     open_ports
+}
+
+fn print_dot(open: bool) {
+    use colored::Colorize;
+    use std::io::Write;
+
+    if open {
+        print!("{}", ".".green());
+    } else {
+        print!("{}", ".".red());
+    }
+    std::io::stdout().flush().unwrap();
 }
